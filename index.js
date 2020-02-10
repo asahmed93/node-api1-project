@@ -58,8 +58,45 @@ server.get('api/users/:id', (req, res) => {
 
 // Update
 
+server.put('api/users/:id', (req, res) => {
+    const id = req.params.id;
+    const updates = req.body;
+
+    if(!updates.name || !updates.bio){
+        res.status(400).json({ errorMessage: "Please provide name and bio for the user." })
+    } else {
+        Users.update(id, updates)
+        .then( user => {
+            if (!user) {
+                res.status(404).json({ message: "The user with the specified ID does not exist." })
+            } else {
+                res.status(200).json(user)
+            }
+        })
+        .catch( err => {
+            res.status(500).json({ errorMessage: "The user information could not be modified." })
+        })
+    }
+
+})
 
 //Delete
+
+server.delete('api/users/:id', (req, res) => {
+    const id = req.params.id;
+
+    Users.remove(id)
+    .then( user => {
+        if (!user) {
+            res.status(404).json({ message: "The user with the specified ID does not exist." })
+        } else {
+            res.json(user)
+        }
+    })
+    .catch( err => {
+        res.status(500).json({ errorMessage: "The user could not be removed" })
+    })
+})
 
 const port = 5000;
 server.listen(port, () => console.log(`\n ** Port is Listening on: ${port} ** \n`))
